@@ -23,4 +23,3 @@ import { FileService } from 'src/file/file.service';
   providers: [PhotoService, PhotoProcessor, FileService],
 })
 export class PhotoModule {}
-
