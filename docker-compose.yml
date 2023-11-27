@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:5.0.9
+    container_name: mongodb-photo-upload
+    env_file: .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME= ${DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD= ${DB_PASSWORD}
+      - MONGO_INITDB_DATABASE= ${DB_DATABASE}
+    volumes:
+      - mongodb:/data/db
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine3.16
+    container_name: redis-photo-upload
+    env_file: .env
+    command: >
+      --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb:
