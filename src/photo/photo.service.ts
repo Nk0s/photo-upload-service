@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { Photo } from '../photo.model/photo.model';
+import { Photo } from './photo.model';
 import { join } from 'path';
 import { createWriteStream } from 'fs';
 import { Queue } from 'bull';
 import { InjectModel } from '@nestjs/mongoose';
-import { PhotoProcessor } from 'src/photo-processor/photo-processor.service';
+import { PhotoProcessor } from 'src/photo/photo-processor';
 import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class PhotoService {
         .on('error', (error) => reject(error))
         .end(file.buffer),
     );
-
+    console.log(`File saved locally: ${filePath}`);
     await this.photoQueue.add('photo', { filePath });
   }
 }

@@ -6,10 +6,10 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PhotoModule } from './photo/photo.module';
-import { PhotoProcessor } from './photo-processor/photo-processor.service';
+import { PhotoProcessor } from './photo/photo-processor';
 import { PhotoService } from './photo/photo.service';
-import { Photo, PhotoSchema } from './photo.model/photo.model';
+import { Photo, PhotoSchema } from './photo/photo.model';
+import { PhotoController } from './photo/photo.controller';
 
 const environment = process.env.NODE_ENV;
 
@@ -33,10 +33,9 @@ const environment = process.env.NODE_ENV;
         password: process.env.REDIS_PASSWORD,
       },
       defaultJobOptions: {
-        timeout: 15000,
+        timeout: 30000,
       },
     }),
-    PhotoModule,
     BullModule.registerQueue({
       name: 'photo',
       redis: {
@@ -67,7 +66,7 @@ const environment = process.env.NODE_ENV;
       },
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, PhotoController],
   providers: [AppService, PhotoProcessor, PhotoService],
 })
 export class AppModule {
