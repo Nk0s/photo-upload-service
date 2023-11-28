@@ -16,7 +16,7 @@ export class PhotoController {
   @UseInterceptors(
     FileInterceptor('photo', {
       fileFilter: (req, file, callback) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|bmp|tiff|webp|eps|)$/)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|bmp|tiff|webp|eps)$/)) {
           return callback(
             new BadRequestException('Only image files are allowed!'),
             false,
@@ -27,7 +27,11 @@ export class PhotoController {
     }),
   )
   async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      return { error: 'No file uploaded' };
+    }
     await this.photoService.saveFile(file);
+    console.log('File upload request received.');
     return 'Photo uploaded!';
   }
 }

@@ -6,9 +6,9 @@ services:
     container_name: mongodb-photo-upload
     env_file: .env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME= ${DB_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD= ${DB_PASSWORD}
-      - MONGO_INITDB_DATABASE= ${DB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_DATABASE}
     volumes:
       - mongodb:/data/db
     ports:

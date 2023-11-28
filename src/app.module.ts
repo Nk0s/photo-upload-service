@@ -1,13 +1,12 @@
 import { ConfigModule } from '@nestjs/config';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bull';
-import { MulterModule } from '@nestjs/platform-express'; // Изменение импорта
-import { diskStorage } from 'multer'; // Изменение импорта
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PhotoModule } from './photo/photo.module';
-import { FileService } from './file/file.service';
 import { PhotoProcessor } from './photo-processor/photo-processor.service';
 import { PhotoService } from './photo/photo.service';
 import { Photo, PhotoSchema } from './photo.model/photo.model';
@@ -21,17 +20,10 @@ const environment = process.env.NODE_ENV;
       isGlobal: true,
     }),
     MongooseModule.forRootAsync({
-      useFactory: async () => {
-        const dbUri = `${process.env.DB_CONNECTION}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}`;
-
-        console.log('MongoDB URI:', dbUri);
-
-        return {
-          uri: dbUri,
-          dbName: process.env.DB_DATABASE,
-          tls: process.env.DB_TLS === 'true',
-        };
-      },
+      useFactory: async () => ({
+        uri: `${process.env.DB_CONNECTION}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}`,
+        tls: process.env.DB_TLS === 'true',
+      }),
     }),
     MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }]),
     BullModule.forRoot({
@@ -41,14 +33,14 @@ const environment = process.env.NODE_ENV;
         password: process.env.REDIS_PASSWORD,
       },
       defaultJobOptions: {
-        timeout: 15000, //тест увелечение таймаута
+        timeout: 15000,
       },
     }),
     BullModule.registerQueue({
       name: 'photo',
       redis: {
         host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT) || 6379,
+        port: parseInt(process.env.REDIS_PORT, 10) || 6390,
         password: process.env.REDIS_PASSWORD,
       },
     }),
@@ -61,7 +53,6 @@ const environment = process.env.NODE_ENV;
         },
       }),
       fileFilter: (req, file, cb) => {
-        // Политика фильтрации файлов, например, проверка расширений(хз зачем решил потестить)
         const allowedMimes = [
           'image/jpeg',
           'image/png',
@@ -77,6 +68,13 @@ const environment = process.env.NODE_ENV;
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, FileService, PhotoProcessor, PhotoService],
+  providers: [AppService, PhotoProcessor, PhotoService],
 })
-export class AppModule {}
+export class AppModule {
+  private readonly logger = new Logger(AppModule.name);
+  constructor() {
+    this.logger.log(
+      `Connected to Redis at ${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+    );
+  }
+}
