@@ -4,10 +4,11 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PhotoService } from './photo.service';
-
 @Controller('photo')
 export class PhotoController {
   constructor(private readonly photoService: PhotoService) {}
@@ -26,12 +27,15 @@ export class PhotoController {
       },
     }),
   )
-  async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      return { error: 'No file uploaded' };
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    try {
+      if (!file) {
+        throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+      }
+      await this.photoService.saveFile(file);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
     }
-    await this.photoService.saveFile(file);
-    console.log('File upload request received.');
-    return 'Photo uploaded!';
   }
 }

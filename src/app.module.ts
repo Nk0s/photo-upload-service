@@ -36,6 +36,7 @@ const environment = process.env.NODE_ENV;
         timeout: 15000,
       },
     }),
+    PhotoModule,
     BullModule.registerQueue({
       name: 'photo',
       redis: {
@@ -44,7 +45,6 @@ const environment = process.env.NODE_ENV;
         password: process.env.REDIS_PASSWORD,
       },
     }),
-    PhotoModule,
     MulterModule.register({
       storage: diskStorage({
         destination: './uploads',

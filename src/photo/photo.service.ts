@@ -4,9 +4,9 @@ import { Photo } from '../photo.model/photo.model';
 import { join } from 'path';
 import { createWriteStream } from 'fs';
 import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
 import { InjectModel } from '@nestjs/mongoose';
 import { PhotoProcessor } from 'src/photo-processor/photo-processor.service';
+import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
 export class PhotoService {
@@ -29,12 +29,5 @@ export class PhotoService {
     );
 
     await this.photoQueue.add('photo', { filePath });
-    await this.savePhotoToDatabase(filePath);
-  }
-
-  private async savePhotoToDatabase(filePath: string): Promise<void> {
-    await this.photoProcessor.processPhoto({ filePath });
-    const savedFile = new this.photoModel({ path: filePath });
-    await savedFile.save();
   }
 }
