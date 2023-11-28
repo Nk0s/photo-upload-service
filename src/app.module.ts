@@ -22,6 +22,7 @@ const environment = process.env.NODE_ENV;
     MongooseModule.forRootAsync({
       useFactory: async () => ({
         uri: `${process.env.DB_CONNECTION}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}`,
+        dbName: process.env.DB_DATABASE,
         tls: process.env.DB_TLS === 'true',
       }),
     }),
